@@ -1,7 +1,10 @@
 <template>
   <nav class="is-primary panel">
     <span class="panel-tabs">
-      <a v-for="period in periods">
+      <a 
+        v-for="period in periods" 
+        :key="period"
+      >
         {{ period }}
       </a>
     </span>
