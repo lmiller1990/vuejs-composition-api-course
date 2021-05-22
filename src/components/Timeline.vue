@@ -40,9 +40,11 @@ export default defineComponent({
         if (currentPeriod.value === 'Today') {
           return post.created.isAfter(moment().subtract(1, 'day'))
         }
+
         if (currentPeriod.value === 'This Week') {
           return post.created.isAfter(moment().subtract(1, 'week'))
         }
+
         if (currentPeriod.value === 'This Month') {
           return post.created.isAfter(moment().subtract(1, 'month'))
         }
