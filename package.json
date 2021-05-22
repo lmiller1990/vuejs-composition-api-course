@@ -8,6 +8,8 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@types/moment": "2.13",
+    "moment": "2.13",
     "vue": "^3.0.0"
   },
   "devDependencies": {
