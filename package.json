@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@types/moment": "2.13",
+    "axios": "0.21.1",
     "moment": "2.13",
     "vue": "^3.0.0"
   },
