@@ -1,14 +1,24 @@
-import { reactive } from 'vue'
+import { reactive, readonly } from 'vue'
 
 interface State {
   test: string
 }
 
+// posts
+
 class Store {
-  state: State
+  private state: State
 
   constructor(initial: State) {
     this.state = reactive(initial)
+  }
+
+  getState() {
+    return readonly(this.state)
+  }
+
+  updateTest(test: string) {
+    this.state.test = test
   }
 }
 
