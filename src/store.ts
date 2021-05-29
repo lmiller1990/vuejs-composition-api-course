@@ -45,14 +45,11 @@ class Store {
 }
 
 const all = new Map<string, Post>()
-all.set(today.id, today)
-all.set(thisWeek.id, thisWeek)
-all.set(thisMonth.id, thisMonth)
 
 const store = new Store({
   posts: {
     all,
-    ids: [today.id, thisWeek.id, thisMonth.id],
+    ids: [],
     loaded: false
   }
 })
