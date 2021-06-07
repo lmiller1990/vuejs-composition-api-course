@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import axios from 'axios'
 import { today, thisWeek, thisMonth, Post } from './mocks'
+import { router } from './router'
 
 function delay() {
   return new Promise(res => {
@@ -20,4 +21,8 @@ axios.get = async (url: string) => {
 }
 
 
-createApp(App).mount('#app')
+const app = createApp(App)
+// ...
+app.use(router)
+
+app.mount('#app')
