@@ -8,8 +8,16 @@
           class="input"
           v-model="title"
         >
-        <div contenteditable ref="contentEditable" />
       </div>
+    </div>
+  </div>
+
+  <div class="columns">
+    <div class="column">
+      <div contenteditable ref="contentEditable" @input="handleInput" />
+    </div>
+    <div class="column">
+      {{ content }}
     </div>
   </div>
 </template>
@@ -28,17 +36,28 @@ export default defineComponent({
 
   setup(props) {
     const title = ref(props.post.title)
-    const content = ref('')
-    const contentEditable = ref(null)
+    const content = ref('## Title\nEnter your post content...')
+    const contentEditable = ref<HTMLDivElement | null>(null)
 
-    console.log(contentEditable.value)
+    const handleInput = () => {
+      if (!contentEditable.value) {
+        throw Error('This should never happen')
+      }
+
+      content.value = contentEditable.value.textContent || ''
+    }
 
     onMounted(() => {
-      console.log(contentEditable.value)
+      if (!contentEditable.value) {
+        throw Error('This should never happen')
+      }
+
+      contentEditable.value.textContent = content.value
     })
 
     return {
       title,
+      handleInput,
       content,
       contentEditable
     }
