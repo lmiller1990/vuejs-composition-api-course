@@ -1,5 +1,4 @@
 <template>
-  New Post
   <post-writer :post="newPost" />
 </template>
 
@@ -17,7 +16,7 @@ export default defineComponent({
   setup() {
     const newPost: Post = {
       id: '-1',
-      title: 'New post',
+      title: 'Enter your title...',
       created: moment()
     }
 
