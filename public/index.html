@@ -7,6 +7,27 @@
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
     <title><%= htmlWebpackPlugin.options.title %></title>
+
+  <style>
+    ul {
+      list-style: revert;
+      list-style-position: inside;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-size: revert;
+      margin: 10px 0 !important;
+    }
+
+    pre {
+      margin: 10px 0 !important;
+    }
+
+    p {
+      margin: 10px 0;
+    }
+  </style>
+
   </head>
   <body>
     <noscript>
