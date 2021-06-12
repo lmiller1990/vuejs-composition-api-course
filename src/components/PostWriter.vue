@@ -20,6 +20,14 @@
       <div v-html="html" />
     </div>
   </div>
+
+  <div class="columns">
+    <div class="column">
+      <button @click="save" class="button is-primary is-pulled-right">
+        Submit
+      </button>
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -28,6 +36,7 @@ import { defineComponent, onMounted, ref, watch, watchEffect } from 'vue';
 import { parse } from 'marked'
 import highlight from 'highlight.js'
 import debounce from 'lodash/debounce'
+import { useStore } from '@/store';
 
 export default defineComponent({
   props: {
@@ -37,7 +46,13 @@ export default defineComponent({
     }
   },
 
-  setup(props) {
+  emits: {
+    save: (post: Post) => {
+      return true
+    }
+  },
+
+  setup(props, ctx) {
     const title = ref(props.post.title)
     const content = ref('## Title\nEnter your post content...')
     const html = ref('')
@@ -74,7 +89,19 @@ export default defineComponent({
       contentEditable.value.innerText = content.value
     })
 
+    const save = () => {
+      const newPost: Post = {
+        ...props.post,
+        title: title.value,
+        html: html.value,
+        markdown: content.value,
+      }
+
+      ctx.emit('save', newPost)
+    }
+
     return {
+      save,
       html,
       title,
       handleInput,

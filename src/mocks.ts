@@ -4,6 +4,8 @@ export interface Post {
   id: string
   title: string
   created: moment.Moment
+  html?: string
+  markdown?: string
 }
 
 // 2020-01-01
