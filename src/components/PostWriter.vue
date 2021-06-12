@@ -17,14 +17,15 @@
       <div contenteditable ref="contentEditable" @input="handleInput" />
     </div>
     <div class="column">
-      {{ content }}
+      <div v-html="html" />
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Post } from '../mocks';
-import { defineComponent, onMounted, ref } from 'vue';
+import { defineComponent, onMounted, ref, watch, watchEffect } from 'vue';
+import { parse } from 'marked'
 
 export default defineComponent({
   props: {
@@ -37,6 +38,12 @@ export default defineComponent({
   setup(props) {
     const title = ref(props.post.title)
     const content = ref('## Title\nEnter your post content...')
+    const html = ref('')
+
+    watchEffect(() => {
+      html.value = parse(content.value)
+    })
+
     const contentEditable = ref<HTMLDivElement | null>(null)
 
     const handleInput = () => {
@@ -56,6 +63,7 @@ export default defineComponent({
     })
 
     return {
+      html,
       title,
       handleInput,
       content,

@@ -8,8 +8,10 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@types/marked": "2.0.3",
     "@types/moment": "2.13",
     "axios": "0.21.1",
+    "marked": "2.0.3",
     "moment": "2.13",
     "vue": "^3.0.0",
     "vue-router": "4.0.8"
