@@ -26,6 +26,7 @@
 import { Post } from '../mocks';
 import { defineComponent, onMounted, ref, watch, watchEffect } from 'vue';
 import { parse } from 'marked'
+import highlight from 'highlight.js'
 
 export default defineComponent({
   props: {
@@ -41,7 +42,13 @@ export default defineComponent({
     const html = ref('')
 
     watchEffect(() => {
-      html.value = parse(content.value)
+      html.value = parse(content.value, {
+        gfm: true,
+        breaks: true,
+        highlight: (code: string) => {
+          return highlight.highlightAuto(code).value
+        }
+      })
     })
 
     const contentEditable = ref<HTMLDivElement | null>(null)
@@ -51,7 +58,7 @@ export default defineComponent({
         throw Error('This should never happen')
       }
 
-      content.value = contentEditable.value.textContent || ''
+      content.value = contentEditable.value.innerText || ''
     }
 
     onMounted(() => {
@@ -59,7 +66,7 @@ export default defineComponent({
         throw Error('This should never happen')
       }
 
-      contentEditable.value.textContent = content.value
+      contentEditable.value.innerText = content.value
     })
 
     return {
