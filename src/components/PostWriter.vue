@@ -27,6 +27,7 @@ import { Post } from '../mocks';
 import { defineComponent, onMounted, ref, watch, watchEffect } from 'vue';
 import { parse } from 'marked'
 import highlight from 'highlight.js'
+import debounce from 'lodash/debounce'
 
 export default defineComponent({
   props: {
@@ -41,15 +42,19 @@ export default defineComponent({
     const content = ref('## Title\nEnter your post content...')
     const html = ref('')
 
-    watchEffect(() => {
-      html.value = parse(content.value, {
+    const parseHtml = (str: string) => {
+      html.value = parse(str, {
         gfm: true,
         breaks: true,
         highlight: (code: string) => {
           return highlight.highlightAuto(code).value
         }
       })
-    })
+    }
+
+    watch(content, debounce((newVal) => {
+      parseHtml(newVal)
+    }, 250), { immediate: true })
 
     const contentEditable = ref<HTMLDivElement | null>(null)
 
