@@ -1,0 +1,7 @@
+<div class="modal">
+  <div class="modal-background"></div>
+  <div class="modal-content">
+    <!-- content -->
+  </div>
+  <button class="modal-close is-large"></button>
+</div>
