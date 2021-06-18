@@ -4,6 +4,7 @@
     <div class="control">
       <input 
         class="input" 
+        :id="name"
         :type="type" 
         :value="modelValue" 
         @input="handleInput"
