@@ -20,15 +20,20 @@
   </div>
 
   <teleport to="#modal">
-    <div>Modal</div>
+    <signup />
   </teleport>
 </template>
 
 <script lang="ts">
 import { computed, defineComponent } from 'vue';
+import Signup from './Signup.vue'
 import { useModal } from '../useModal'
 
 export default defineComponent({
+  components: {
+    Signup
+  },
+
   setup() {
     const modal = useModal()
 
