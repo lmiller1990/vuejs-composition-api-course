@@ -5,7 +5,7 @@ import { today, thisWeek, thisMonth, Post } from './mocks'
 import { router } from './router'
 import random from 'lodash/random'
 import 'highlight.js/styles/atom-one-dark.css'
-import { store, storeKey } from './store'
+import { store, storeKey, User, Author } from './store'
 
 function delay() {
   return new Promise(res => {
@@ -30,6 +30,21 @@ axios.post = async (url: string, post: Post) => {
     await delay()
     return Promise.resolve({
       data: {...post, id}
+    })
+  }
+}
+
+// @ts-ignore
+axios.post = async (url: string, user: User) => {
+  if (url === '/users') {
+    const id = random(100, 10000)
+    await delay()
+    const author: Author = {
+      id: id.toString(),
+      username: user.username
+    }
+    return Promise.resolve({
+      data: author
     })
   }
 }
