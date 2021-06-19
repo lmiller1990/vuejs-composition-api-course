@@ -1,4 +1,10 @@
 <template>
+  <router-link
+    :to="`/posts/${post.id}/edit`"
+    class="button is-link is-rounded"
+  >
+    Edit
+  </router-link>
   <h1>{{ post.title }}</h1>
 </template>
 

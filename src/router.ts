@@ -6,6 +6,7 @@ import {
 import Home from './components/Home.vue'
 import NewPost from './components/NewPost.vue'
 import ShowPost from './components/ShowPost.vue'
+import EditPost from './components/EditPost.vue'
 import { Store } from './store'
 
 export function routerWithStore(store: Store) {
@@ -15,6 +16,13 @@ export function routerWithStore(store: Store) {
       {
         path: '/',
         component: Home
+      },
+      {
+        path: '/posts/:id/edit',
+        component: EditPost,
+        meta: {
+          requiresAuth: true
+        }
       },
       {
         path: '/posts/:id',
