@@ -31,7 +31,8 @@ axios.post = async (url: string, payload: any) => {
     const post: Post = {
       id: id.toString(),
       title: payload.title,
-      created: payload.created
+      created: payload.created,
+      authorId: payload.authorId
     }
     return Promise.resolve<{ data: Post }>({
       data: post
