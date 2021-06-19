@@ -66,8 +66,6 @@ export default defineComponent({
       return !!store.getState().authors.currentUserId
     })
 
-    console.log(Signup)
-
     const signIn = () => {
       const Demo = defineComponent({
         setup () {
