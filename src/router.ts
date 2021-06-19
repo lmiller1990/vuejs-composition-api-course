@@ -5,6 +5,7 @@ import {
 
 import Home from './components/Home.vue'
 import NewPost from './components/NewPost.vue'
+import ShowPost from './components/ShowPost.vue'
 import { Store } from './store'
 
 export function routerWithStore(store: Store) {
@@ -14,6 +15,10 @@ export function routerWithStore(store: Store) {
       {
         path: '/',
         component: Home
+      },
+      {
+        path: '/posts/:id',
+        component: ShowPost
       },
       {
         path: '/posts/new',
