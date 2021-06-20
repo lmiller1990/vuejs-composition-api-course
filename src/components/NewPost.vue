@@ -6,8 +6,8 @@
 </template>
 
 <script lang="ts">
-import { Post } from '../mocks';
 import { defineComponent } from 'vue';
+import { Post } from '../mocks';
 import PostWriter from './PostWriter.vue'
 import moment from 'moment';
 import { useStore } from '../store';

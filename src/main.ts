@@ -53,6 +53,23 @@ axios.post = async (url: string, payload: any) => {
   }
 }
 
+// @ts-ignore
+axios.put = async (url: string, payload: any) => {
+  if (url === '/posts') {
+    await delay()
+    const post: Post = {
+      ...payload,
+      title: payload.title,
+      created: payload.created,
+      authorId: payload.authorId
+    }
+    return Promise.resolve<{ data: Post }>({
+      data: post
+    })
+  }
+}
+
+
 const app = createApp(App)
 const router = routerWithStore(store)
 app.use(router)
