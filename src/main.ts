@@ -9,7 +9,7 @@ import { store, storeKey, User, Author } from './store'
 
 function delay() {
   return new Promise(res => {
-    setTimeout(res, 2000)
+    setTimeout(res, 500)
   })
 }
 
