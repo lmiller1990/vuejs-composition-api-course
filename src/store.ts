@@ -66,6 +66,14 @@ export class Store {
     console.log(this.state.authors)
   }
 
+  async signIn(user: User) {
+    // hard code test user as id: 1
+    const response = await axios.post<Author>('/sign_in', user)
+    this.state.authors.all.set('1', response.data)
+    this.state.authors.ids.push('1')
+    this.state.authors.currentUserId = '1'
+  }
+
   async fetchPosts() {
     const response = await axios.get<Post[]>('/posts')
     const postsState: PostsState = {
@@ -80,6 +88,10 @@ export class Store {
     }
 
     this.state.posts = postsState
+  }
+
+  signOut() {
+    this.state.authors.currentUserId = undefined
   }
 }
 

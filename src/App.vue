@@ -14,6 +14,14 @@
 
   <section class="section">
     <div class="container">
+      <div class="notification is-info is-size-3">
+        <p>
+          Learn to build this application with Vue.js 3, the Composition API, TypeScript, Vue Router and Vue Test Utils!
+        </p>
+        <p>
+          <a href="https://gum.co/vuejs-composition-api">Get it on Gumroad.</a> 👈🏼 20% off with <b>VUE_SHARE_THE_LOVE</b> 🎉.
+        </p>
+      </div>
       <navbar />
       <router-view />
     </div>

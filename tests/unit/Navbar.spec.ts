@@ -3,6 +3,12 @@ import Navbar from '../../src/components/Navbar.vue'
 import Signup from '../../src/components/Signup.vue'
 import { Store } from '../../src/store'
 
+jest.mock('vue-router', () => ({
+  useRouter: () => {
+    return {}
+  }
+}))
+
 describe('Navbar', () => {
   it('shows a signup modal via teleport', async () => {
     const store = new Store({

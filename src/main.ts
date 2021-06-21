@@ -51,6 +51,21 @@ axios.post = async (url: string, payload: any) => {
       data: author
     })
   }
+
+  if (url === '/sign_in') {
+    if (payload.username !== 'user123' || payload.password !== 'pass42') {
+      return
+    }
+
+    await delay()
+    const author: Author = {
+      id: '1',
+      username: payload.username
+    }
+    return Promise.resolve({
+      data: author
+    })
+  }
 }
 
 // @ts-ignore

@@ -50,7 +50,9 @@
 
 <script lang="ts">
 import { computed, defineComponent, h, markRaw } from 'vue';
+import { useRouter } from 'vue-router'
 import Signup from './Signup.vue'
+import Signin from './Signin.vue'
 import { useModal } from '../useModal'
 import { useStore } from '../store'
 
@@ -62,19 +64,14 @@ export default defineComponent({
   setup() {
     const modal = useModal()
     const store = useStore()
+    const router = useRouter()
 
     const auth = computed(() => {
       return !!store.getState().authors.currentUserId
     })
 
     const signIn = () => {
-      const Demo = defineComponent({
-        setup () {
-          return () => h('div', 'Demo')
-        }
-      })
-
-      modal.component.value = markRaw(Demo)
+      modal.component.value = markRaw(Signin)
       modal.showModal()
     }
 
@@ -83,7 +80,10 @@ export default defineComponent({
       modal.showModal()
     }
 
-    const signOut = () => {}
+    const signOut = () => {
+      store.signOut() 
+      router.push('/')
+    }
 
     return {
       component: modal.component,
