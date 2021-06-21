@@ -11,7 +11,7 @@ import { Store } from './store'
 
 export function routerWithStore(store: Store) {
   const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(process.env.NODE_ENV === 'production' ? '/vuejs-composition-api-course' : undefined),
     routes: [
       {
         path: '/',
