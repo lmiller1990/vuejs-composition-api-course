@@ -1,0 +1,45 @@
+Welcome to the future. Check out this snippet from a popular web programming language that's gaining traction - it's a functional programming language where all values are immutable:
+
+```js
+const sanitized = input
+  |> Str.split(?, ',')
+  |> Arr.map(?, toNumber)
+```
+
+As you can see it has a number operators like `|>` (pipeline) and `?` (partial application).
+
+What year is it, and language are you coding in, you ask? The year is 2021 - and the language is *JavaScript*!
+
+You can watch a video version of this post on my [Youtube channel](https://youtube.com/c/LachlanMiller).
+
+## What is `|>`? Introducing the Pipeline Operator
+
+Many functional language have a *pipeline* operator. Examples include Elm:
+
+```elm
+"Hello everyone" 
+  |> left 5 
+  |> toLower 
+  |> append "I say " -- "I say hello"
+```
+
+Elixir:
+
+```elm
+"Elixir rocks"
+  |> String.upcase() 
+  |> String.split()
+#=> ["ELIXIR", "ROCKS"]
+```
+
+F#
+
+```fsharp
+let finalSeq = 
+    seq { 0..10 }
+    |> Seq.filter (fun c -> (c % 2) = 0)
+    |> Seq.map ((*) 2)
+    |> Seq.map (sprintf "The value is %i.")
+```
+
+You see the syntax - lots of `|>` which let you modify data in some way. Why is this a useful feature, and why would we want it in JavaScript? Pipelines make it easy to *chain functions together*. 

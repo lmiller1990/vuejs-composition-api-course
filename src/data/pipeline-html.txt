@@ -1,0 +1,29 @@
+<p>Welcome to the future. Check out this snippet from a popular web programming language that&#39;s gaining traction - it&#39;s a functional programming language where all values are immutable:</p>
+<pre><code class="language-js">const sanitized = <span class="hljs-built_in">input</span>
+  |&gt; Str.<span class="hljs-keyword">split</span>(?, <span class="hljs-string">&#x27;,&#x27;</span>)
+  |&gt; Arr.<span class="hljs-keyword">map</span>(?, toNumber)
+</code></pre>
+<p>As you can see it has a number operators like <code>|&gt;</code> (pipeline) and <code>?</code> (partial application).</p>
+<p>What year is it, and language are you coding in, you ask? The year is 2021 - and the language is <em>JavaScript</em>!</p>
+<p>You can watch a video version of this post on my <a href="https://youtube.com/c/LachlanMiller">Youtube channel</a>.</p>
+<h2 id="what-is--introducing-the-pipeline-operator">What is <code>|&gt;</code>? Introducing the Pipeline Operator</h2>
+<p>Many functional language have a <em>pipeline</em> operator. Examples include Elm:</p>
+<pre><code class="language-elm"><span class="hljs-string">&quot;Hello everyone&quot;</span> 
+  <span class="hljs-string">|&gt; left 5 </span>
+  <span class="hljs-string">|&gt; toLower </span>
+  <span class="hljs-string">|&gt; append &quot;</span>I say <span class="hljs-string">&quot; -- &quot;</span>I say hello<span class="hljs-string">&quot;</span>
+</code></pre>
+<p>Elixir:</p>
+<pre><code class="language-elm"><span class="hljs-string">&quot;Elixir rocks&quot;</span>
+  |<span class="hljs-type">&gt; String</span>.upcase() 
+  |<span class="hljs-type">&gt; String</span>.<span class="hljs-built_in">split</span>()
+#=&gt; [<span class="hljs-string">&quot;ELIXIR&quot;</span>, <span class="hljs-string">&quot;ROCKS&quot;</span>]
+</code></pre>
+<p>F#</p>
+<pre><code class="language-fsharp">let finalSeq = 
+    se<span class="hljs-string">q { 0..10 }</span>
+    |&gt; Seq.filter (fun c -&gt; (c % <span class="hljs-number">2</span>) = <span class="hljs-number">0</span>)
+    |&gt; Seq.map ((*) <span class="hljs-number">2</span>)
+    |&gt; Seq.map (<span class="hljs-keyword">sprintf</span> <span class="hljs-string">&quot;The value is %i.&quot;</span>)
+</code></pre>
+<p>You see the syntax - lots of <code>|&gt;</code> which let you modify data in some way. Why is this a useful feature, and why would we want it in JavaScript? Pipelines make it easy to <em>chain functions together</em>. </p>

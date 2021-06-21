@@ -1,0 +1,133 @@
+As of Cypress 7.0, the new Component Testing (CT) runner is now bundled with the Cypress when you install it! It takes inspiration from the original CT implementation, which was hidden behind the `experimentalComponentTesting` flag.
+
+In this blog post we will see how to set up CT with a Vue CLI project. CT supports both Vue 2 and Vue 3, with TypeScript support out of the box.
+
+You can get the source code for the blog post [here](https://github.com/lmiller1990/vue-cypress-template).
+
+## Creating a new Vue CLI Project
+
+Create a new Vue CLI project to get started. For this example I chose Vue 2 and TypeScript, but everything works exactly the same with Vue 3.
+
+## Configuring Cypress Component Testing
+
+Once you've got a Vue project, you'll also need to install Cypress and the Webpack Dev Server and Vue adapters. Vue CLI projects are Webpack based; that's why we are installing the relevant Webpack adapter:
+
+```sh
+yarn add cypress @cypress/vue @cypress/webpack-dev-server --dev
+# or 
+npm install cypress @cypress/vue @cypress/webpack-dev-server --dev
+```
+
+If you would like to use Vue 3, you'll need the `next` branch of `@cypress/vue`. Install that with:
+
+```sh
+yarn add @cypress/vue@next --dev
+# or
+npm install @cypress/vue@next --dev
+```
+
+The last thing we need to do is add some basic configuration. It is possible to configure things manually, but to save some time we will use `create-cypress-tests`, a little utility to help you scaffold configuration, much like the Vue CLI.
+
+```sh
+yarn create cypress-tests
+
+# or npm
+npx create-cypress-tests
+```
+
+You are prompted with "Do you want to setup component testing?". Answer yes!
+
+The next question asks for your template. Select `vue-cli`. There are a number of other adapters to use. At the time of this post, the Webpack adapter is the most mature and stable.
+
+The final question asks where you'd like to place your spec files. I like to use `src`, so my specs are near the relevant components.
+
+The wizard created a number of files for you. The most interesting is `cypress/plugins/index.js`:
+
+```js
+const { startDevServer } = require("@cypress/webpack-dev-server");
+
+const webpackConfig = require("@vue/cli-service/webpack.config.js");
+
+module.exports = (on, config) => {
+  on("dev-server:start", options =>
+    startDevServer({
+      options,
+      webpackConfig
+    })
+  );
+};
+```
+
+This will configure the Cypress Webpack Dev Server to use the same `webpack.config.js` as your project. 
+
+## Writing Some Tests
+
+Let's get started! I created `src/components/HelloWorld.spec.ts` to try things out. Add a minimal test:
+
+```ts
+import { mount } from '@cypress/vue'
+import HelloWorld from './HelloWorld.vue'
+
+describe('HelloWorld', () => {
+  it('renders a message', () => {
+    const msg = 'Hello Cypress Component Testing!'
+    mount(HelloWorld, {
+      propsData: {
+        msg
+      }
+    })
+
+    cy.get('h1').should('have.text', msg)
+  })
+})
+```
+
+The `mount` function is very similar to the one from [Vue Test Utils](https://vue-test-utils.vuejs.org/). It's actually built on top of Vue Test Utils! So you can use the mounting options you might already be familiar with.
+
+Learn more about how to write assertions with Cypress [in the official docs](https://docs.cypress.io/guides/references/assertions). Get an overview of the `cy` object and how to use it [here](https://docs.cypress.io/guides/core-concepts/introduction-to-cypress#Cypress-Can-Be-Simple-Sometimes).
+
+Finally, open the Component Testing runner:
+
+```sh
+yarn cypress open-ct # or npx cypress open-ct
+```
+
+Select the spec and watch the test pass!
+
+![Cypress Component Testing Runner Success](https://github.com/lmiller1990/vue-cypress-template/raw/master/img1.png)
+
+Try updating the test and making it fail. Cypress will re-run your test (almost) instantly. This makes for a great red-green-refactor loop.
+
+![Cypress Component Testing Runner Failure](https://github.com/lmiller1990/vue-cypress-template/raw/master/img2.png)
+
+## Vue 3 Usage
+
+Everything works the same with Vue 3. Just make sure you have a Vue 3 project and the correct adapter:
+
+```sh
+yarn add @cypress/vue@next --dev
+# or
+npm install @cypress/vue@next --dev
+```
+
+The mounting options are the same as [Vue Test Utils](https://next.vue-test-utils.vuejs.org/api/#mount), so if you've used Vue Test Utils before, you'll feel right at home. 
+
+## Discussion
+
+Cypress Component Testing is an alternative to a jsdom based testing environment, such as Jest and Vue Test Utils. Cypress Component Testing offers many benefits:
+
+- Runs in a real browser. This means your tests are closer to what your users will be experiencing.
+- Visual. You can see exactly what is rendered. No more `console.log(wrapper.html())`.
+- Powered by Cypress - the most popular and reliable E2E testing tool out there.
+
+It also doubles as a *design environment*. You can see the component as you develop it, and hot reload give you a near instance feedback loop. It can potentially take the place of not only your Jest based test infrastructure, but your Storybook based design infrastructure as well. 
+
+Cypress Component Testing is still in alpha but the product is quickly evolving and promises to change the landscape of Component Testing.
+
+## Conclusion
+
+Cypress Component Testing brings everything that is great about Cypress to Component Testing. Since the underlying adapters are built on libraries like Webpack and Vue Test Utils, you don't need to throw away your entire test suite - incrementally migration is more than possible. 
+
+The visual aspect united testing and design in a single tool. My days of grepping a messy console output to figure out what the user will see are over - I can see exactly what the component will look like as my tests run.
+
+You can get the source code for the blog post [here](https://github.com/lmiller1990/vue-cypress-template).

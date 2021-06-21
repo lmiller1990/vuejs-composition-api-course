@@ -90,7 +90,7 @@ export const store = new Store({
     all: new Map<string, Author>(),
     ids: [],
     loaded: false,
-    currentUserId: undefined
+    currentUserId: '1'
   },
   posts: {
     all,

@@ -1,0 +1,234 @@
+<p>In this article we explore some advanced TypeScript while building a type safe store with a similar API to <a href="https://github.com/posva/pinia">Pinia</a> or <a href="https://github.com/vuejs/rfcs/discussions/270">Vuex 5</a> (which is still in the RFC stage). I learned a lot of what was needed to write this article by reading the <a href="https://github.com/posva/pinia/">Pinia</a> source code.</p>
+<p>You can find the source code <a href="https://gist.github.com/lmiller1990/9ef32df8fb401e5f0482692ae974e6e0">here</a>.</p>
+<p>The goal will be a <code>defineStore</code> function that looks like this:</p>
+<pre><code class="language-ts">export <span class="hljs-keyword">const</span> useMainStore = defineStore({
+  <span class="hljs-keyword">state</span>: {
+    counter: <span class="hljs-number">0</span>,
+  },
+  actions: {
+    inc(val: number = <span class="hljs-number">1</span>) {
+      this.<span class="hljs-keyword">state</span>.counter += val
+    },
+  },
+});
+</code></pre>
+<p>The store can then be used by simply calling <code>useMainStore()</code>:</p>
+<pre><code class="language-html"><span class="language-xml"><span class="hljs-tag">&lt;<span class="hljs-name">template</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">p</span>&gt;</span>Count is: </span><span class="hljs-template-variable">{{ <span class="hljs-name">state.counter</span> }}</span><span class="language-xml"><span class="hljs-tag">&lt;/<span class="hljs-name">p</span>&gt;</span>
+  <span class="hljs-tag">&lt;<span class="hljs-name">button</span> @<span class="hljs-attr">click</span>=<span class="hljs-string">&quot;click&quot;</span>&gt;</span>Inc<span class="hljs-tag">&lt;/<span class="hljs-name">button</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-name">template</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-name">script</span> <span class="hljs-attr">lang</span>=<span class="hljs-string">&quot;ts&quot;</span>&gt;</span><span class="language-javascript">
+<span class="hljs-keyword">import</span> { computed } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;vue&#x27;</span>
+<span class="hljs-keyword">import</span> { useMainStore, useOtherStore } <span class="hljs-keyword">from</span> <span class="hljs-string">&#x27;./index2&#x27;</span>
+
+<span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {
+  <span class="hljs-title function_">setup</span>(<span class="hljs-params"></span>) {
+    <span class="hljs-keyword">const</span> store = <span class="hljs-title function_">useMainStore</span>()
+    <span class="hljs-keyword">return</span> {
+      <span class="hljs-attr">click</span>: <span class="hljs-function">() =&gt;</span> store.<span class="hljs-title function_">inc</span>(),
+      <span class="hljs-attr">state</span>: store.<span class="hljs-property">state</span>,
+    }
+  },
+}
+</span><span class="hljs-tag">&lt;/<span class="hljs-name">script</span>&gt;</span></span>
+</code></pre>
+<p>The primary goal is to explore some advanced TypeScript types.</p>
+<h2 id="definestore"><code>defineStore</code></h2>
+<p>We will start of with <code>defineStore</code>. It needs to be generic to be type safe - in this case, both the state and actions needs to be declared as generic parameters:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">function</span> defineStore&lt;
+  S <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">StateTree</span>,
+  A <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">Record</span>&lt;<span class="hljs-built_in">string</span>, <span class="hljs-title class_">Method</span>&gt;
+&gt;(options) {
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>We will also need a few utility types - <code>StateTree</code> and <code>Method</code>. <code>Method</code> is simple:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-function"><span class="hljs-keyword">Method</span> = <span class="hljs-params">(...args: any[])</span> =&gt; <span class="hljs-title">any</span>;</span>
+</code></pre>
+<p><code>StateTree</code> isn&#39;t much more complex - it&#39;s basically typing a JavaScript object, where the key can be a <code>string</code>, <code>number</code> or <code>symbol</code>:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> <span class="hljs-title class_">StateTree</span> = <span class="hljs-title class_">Record</span>&lt;<span class="hljs-built_in">string</span> | <span class="hljs-built_in">number</span> | symbol, <span class="hljs-built_in">any</span>&gt;;
+</code></pre>
+<h2 id="typing-the-store-options">Typing the Store Options</h2>
+<p><code>defineStore</code> takes an object of options - <code>state</code> and <code>actions</code>. <code>state</code> is very easy to type - it&#39;s just <code>S</code>:</p>
+<pre><code class="language-ts">function defineStore<span class="hljs-variable">&lt;
+  S extends StateTree,
+  A extends Record&lt;string, Method&gt;</span>
+&gt;(options: {
+  <span class="hljs-keyword">state</span>: S,
+}) {
+</code></pre>
+<p><code>actions</code> is a bit more tricky. We know it&#39;s going to be a type of <code>A</code>, the second generic type passed to <code>defineStore</code>, but it also needs to have knowledge of <code>this</code>. Specifically, it needs to know that <code>this.state</code> exists, and <code>state</code> is a typed as <code>S</code>.</p>
+<p>The way this is typed is using an intersection type (<code>&amp;</code>) and <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#thistypetype"><code>ThisType</code></a>. We need something similar to the example <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#thistypetype">in the docs</a>:</p>
+<pre><code class="language-ts">actions: <span class="hljs-keyword">A</span> &amp; ThisType&lt;<span class="hljs-keyword">A</span> &amp; _STORE_WITH_STATE_&gt;
+</code></pre>
+<p>We just need to declare <code>_STORE_WITH_STATE_</code>. We could do it inline:</p>
+<pre><code class="language-ts">actions: <span class="hljs-keyword">A</span> &amp; ThisType&lt;<span class="hljs-keyword">A</span> &amp; { state: S }&gt;
+</code></pre>
+<p>Putting it all together:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">type</span> <span class="hljs-title class_">StateTree</span> = <span class="hljs-title class_">Record</span>&lt;<span class="hljs-built_in">string</span> | <span class="hljs-built_in">number</span> | symbol, <span class="hljs-built_in">any</span>&gt;;
+<span class="hljs-keyword">function</span> defineStore&lt;
+  S <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">StateTree</span>,
+  A <span class="hljs-keyword">extends</span> <span class="hljs-title class_ inherited__">Record</span>&lt;<span class="hljs-built_in">string</span>, <span class="hljs-title class_">Method</span>&gt;
+&gt;(<span class="hljs-attr">options</span>: {
+  <span class="hljs-attr">state</span>: S,
+  <span class="hljs-attr">actions</span>: A &amp; <span class="hljs-title class_">ThisType</span>&lt;A &amp; { <span class="hljs-attr">state</span>: S }&gt;
+}) {
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>I&#39;d like to add more features to the store later, so I am actually going to extract a type, <code>StoreWithState</code>:</p>
+<pre><code class="language-ts"><span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">StoreWithState&lt;S</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">StateTree&gt;</span> </span>= {
+  state: <span class="hljs-type">S</span>
+}
+
+export <span class="hljs-class"><span class="hljs-keyword">type</span> <span class="hljs-title">StateTree</span> </span>= <span class="hljs-type">Record</span>&lt;string | number | symbol, any&gt;;
+function defineStore&lt;
+  <span class="hljs-type">S</span> <span class="hljs-keyword">extends</span> <span class="hljs-type">StateTree</span>,
+  <span class="hljs-type">A</span> <span class="hljs-keyword">extends</span> <span class="hljs-type">Record</span>&lt;string, <span class="hljs-type">Method</span>&gt;
+&gt;(options: {
+  state: <span class="hljs-type">S</span>,
+  actions: <span class="hljs-type">A</span> &amp; <span class="hljs-type">ThisType</span>&lt;<span class="hljs-type">A</span> &amp; <span class="hljs-type">StoreWithState</span>&lt;<span class="hljs-type">S</span>&gt;&gt;
+}) {
+  <span class="hljs-comment">// ...</span>
+}
+</code></pre>
+<p>Now <code>this</code> in actions is typed! Let&#39;s move on to implementing the actual store.</p>
+<h2 id="implementing-usestore-and-reactive-state">Implementing <code>useStore</code> and Reactive State</h2>
+<p>The first thing we need is a store with a state property. Create that (<code>defineStore</code> is shown without the types for simplicity):</p>
+<pre><code class="language-ts">function defineStore(options) {
+  <span class="hljs-keyword">const</span> initialStore = {
+    <span class="hljs-keyword">state</span>: options.<span class="hljs-keyword">state</span> || {}
+  }
+}
+</code></pre>
+<p><code>defineStore</code> should return a function. I will call it <code>useStore</code>, and it needs to return what we are going to type as <code>Store</code>:</p>
+<pre><code class="language-ts">function defineStore(options) {
+  <span class="hljs-keyword">const</span> initialStore = {
+    <span class="hljs-keyword">state</span>: options.<span class="hljs-keyword">state</span> || {}
+  }
+
+  return function useStore(): Store<span class="hljs-variable">&lt;S, A&gt;</span> {
+    // ...
+  }
+}
+</code></pre>
+<p>Typing <code>Store</code> is a bit tricky. It needs to expose a <code>state</code> property, as well as all the methods (which we are calling &quot;actions&quot; here). We want the arguments to those methods to be typed, too. We already have a <code>StoreWithState</code> type - we also need a <code>StoreWithActions</code> type. </p>
+<p>The <code>Store</code> type looks like this:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> Store&lt;
+  S extends StateTree,
+  A extends <span class="hljs-keyword">Record</span>&lt;string, <span class="hljs-function"><span class="hljs-keyword">Method</span>&gt;
+&gt; = <span class="hljs-title">StoreWithState</span>&lt;<span class="hljs-title">S</span>&gt; &amp; <span class="hljs-title">S</span> &amp; <span class="hljs-title">StoreWithActions</span>&lt;<span class="hljs-title">A</span>&gt;;</span>
+</code></pre>
+<h2 id="typing-actions-and-inferring-parameters">Typing Actions and Inferring Parameters</h2>
+<p>Before we write the type, we should figure out what we are actually typing:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">const</span> actions = {
+  inc(val: number = <span class="hljs-number">1</span>) {
+    this.<span class="hljs-keyword">state</span>.counter += val
+  },
+}
+</code></pre>
+<p>We don&#39;t care too much about the body of the function - just the parameters. If we describe <code>actions</code> in plain English, it would be &quot;a key value object. If the value exists, and it&#39;s a function, infer the type of the arguments and return type&quot;. Or something like that.</p>
+<p>Let&#39;s start with &quot;a key value object&quot;:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-type">StoreWithActions</span>&lt;<span class="hljs-type">A</span>&gt; = {
+  [k in keyof <span class="hljs-type">A</span>]: any
+}
+</code></pre>
+<p>This infers the methods exists. <code>useMainStore().inc</code> is typed, but not as a function. Let&#39;s fix that:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-title class_">StoreWithActions</span>&lt;A&gt; = {
+  [k <span class="hljs-keyword">in</span> keyof A]: <span class="hljs-function">(<span class="hljs-params">...args: <span class="hljs-built_in">any</span>[]</span>) =&gt;</span> <span class="hljs-built_in">any</span>
+}
+</code></pre>
+<p>Now we know it&#39;s a function. But the parameters still aren&#39;t typed! We need to <code>infer</code> them - to infer a function has parameters, though, we first need to validate that it is actually a function:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-type">StoreWithActions</span>&lt;<span class="hljs-type">A</span>&gt; = {
+  [k in keyof <span class="hljs-type">A</span>]: <span class="hljs-type">A</span>[k] extends (...args: infer <span class="hljs-type">P</span>) =&gt; infer <span class="hljs-type">R</span>
+    ? /* type */
+    : /* the key does not exist, or it&#x27;s not a method */
+}
+</code></pre>
+<p>We use <code>extends</code> to see if <code>A[k]</code> (in this case, actions[&#39;inc&#39;]<code>exists, and is a method - that is to say, it has arguments and returns a type. We don&#39;t know the type, so we *infer* it.</code>infer<code>is kind of like a generic type, except we are creating it based on a type that already exists. If we did not use</code>infer`, we&#39;d get an error &quot;cannot find name P&quot;, since TypeScript would be expecting us to provide that parameters.</p>
+<p>Finish of the type:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">type</span> <span class="hljs-type">StoreWithActions</span>&lt;<span class="hljs-type">A</span>&gt; = {
+  [k in keyof <span class="hljs-type">A</span>]: <span class="hljs-type">A</span>[k] extends (...args: infer <span class="hljs-type">P</span>) =&gt; infer <span class="hljs-type">R</span>
+    ? (...args: <span class="hljs-type">P</span>) =&gt; <span class="hljs-type">R</span>
+    : never
+}
+</code></pre>
+<p>This is definitely an advanced type. It combines conditional types (using <code>extends</code>) and <code>infer</code>. This is the most complex type in the store.</p>
+<h2 id="creating-the-store-object">Creating the Store Object</h2>
+<p>Now that we finished the types, we can actually implement the store. Inside of <code>useStore</code> create a <code>store</code> variable:</p>
+<pre><code class="language-ts">function defineStore(options) {
+  <span class="hljs-keyword">const</span> initialStore = {
+    <span class="hljs-keyword">state</span>: options.<span class="hljs-keyword">state</span> || {}
+  }
+
+  return function useStore(): Store<span class="hljs-variable">&lt;S, A&gt;</span> {
+    <span class="hljs-keyword">const</span> store: Store<span class="hljs-variable">&lt;S, A&gt;</span> = reactive({
+      ...initialStore,
+    }) as Store<span class="hljs-variable">&lt;S, A&gt;</span>
+  }
+}
+</code></pre>
+<p>This has type errors - we need to provide an object typed as <code>StoreWithActions</code>. We need the actions to be called with <code>store</code> as the <code>this</code> context, so we can do <code>this.state</code>. This means we will <em>wrap</em> the actions and call them with <code>apply</code>, passing <code>store</code> as the first argument. For this reason the variable is called <code>wrappedActions</code> and typed as <code>StoreWithActions&lt;A&gt;</code>:</p>
+<pre><code class="language-ts">function defineStore(options) {
+  <span class="hljs-keyword">const</span> initialStore = {
+    <span class="hljs-keyword">state</span>: options.<span class="hljs-keyword">state</span> || {}
+  }
+
+  return function useStore(): Store<span class="hljs-variable">&lt;S, A&gt;</span> {
+    <span class="hljs-keyword">const</span> wrappedActions: StoreWithActions<span class="hljs-variable">&lt;A&gt;</span> = {} as StoreWithActions<span class="hljs-variable">&lt;A&gt;</span>
+
+    <span class="hljs-keyword">const</span> store: Store<span class="hljs-variable">&lt;S, A&gt;</span> = reactive({
+      ...initialStore,
+      ...wrappedActions
+    }) as Store<span class="hljs-variable">&lt;S, A&gt;</span>
+
+    return store
+  }
+}
+</code></pre>
+<p>A bit messy, but it works. Finally, we just need to wrap the actions. First, type it:</p>
+<pre><code class="language-ts"><span class="hljs-keyword">const</span> wrappedActions: StoreWithActions&lt;A&gt; = {} <span class="hljs-keyword">as</span> StoreWithActions&lt;A&gt;
+<span class="hljs-keyword">const</span> actions = (options.actions || {}) <span class="hljs-keyword">as</span> A
+<span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> actionName <span class="hljs-keyword">in</span> actions) {
+  wrappedActions[actionName] = <span class="hljs-keyword">function</span><span class="hljs-params">()</span> {
+
+  } <span class="hljs-keyword">as</span> StoreWithActions&lt;A&gt;[<span class="hljs-keyword">typeof</span> actionName]
+}
+</code></pre>
+<p>Again, a bit messy. We need the <code>as StoreWithActions&lt;A&gt;[typeof actionName]</code> to get the correct typing. This paralells the <code>[k in keyof A]</code> typing we did earlier in <code>StoreWithActions</code>. </p>
+<p>Finally, call the original <code>actions[actionName]</code> with <code>apply</code>, passing in <code>store</code> as the <code>this</code> context:</p>
+<pre><code class="language-ts">
+<span class="hljs-keyword">function</span> <span class="hljs-title function_">defineStore</span>(<span class="hljs-params">options</span>) {
+  <span class="hljs-comment">// ...</span>
+  <span class="hljs-keyword">return</span> <span class="hljs-keyword">function</span> <span class="hljs-title function_">useStore</span>(<span class="hljs-params"></span>): <span class="hljs-title class_">Store</span>&lt;S, A&gt; {
+    <span class="hljs-keyword">const</span> <span class="hljs-attr">wrappedActions</span>: <span class="hljs-title class_">StoreWithActions</span>&lt;A&gt; = {} <span class="hljs-keyword">as</span> <span class="hljs-title class_">StoreWithActions</span>&lt;A&gt;
+    <span class="hljs-keyword">const</span> actions = (options.<span class="hljs-property">actions</span> || {}) <span class="hljs-keyword">as</span> A
+
+    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> actionName <span class="hljs-keyword">in</span> actions) {
+      wrappedActions[actionName] = <span class="hljs-keyword">function</span>(<span class="hljs-params">...args: any[]</span>) {
+        <span class="hljs-keyword">return</span> actions[actionName].<span class="hljs-title function_">apply</span>(store, args)
+      } <span class="hljs-keyword">as</span> <span class="hljs-title class_">StoreWithActions</span>&lt;A&gt;[<span class="hljs-keyword">typeof</span> actionName]
+    }
+
+    <span class="hljs-keyword">const</span> <span class="hljs-attr">store</span>: <span class="hljs-title class_">Store</span>&lt;S, A&gt; = <span class="hljs-title function_">reactive</span>({
+      ...initialStore,
+      ...wrappedActions
+    }) <span class="hljs-keyword">as</span> <span class="hljs-title class_">Store</span>&lt;S, A&gt;
+
+    <span class="hljs-keyword">return</span> store
+  }
+}
+</code></pre>
+<p>That&#39;s it! A type safe store. </p>
+<h2 id="conclusion">Conclusion</h2>
+<p>We created a type safe store. The types are a bit complex. We covered:</p>
+<ul>
+<li><code>infer</code> keyword</li>
+<li><code>ThisType</code></li>
+<li>Generics</li>
+<li>Conditional types with <code>extends</code></li>
+<li>Intersections (<code>&amp;</code>)</li>
+</ul>
+<p>An improvement would be to add <code>getters</code> using Vue&#39;s <code>computed</code> function. </p>
+<p>You can find the source code <a href="https://gist.github.com/lmiller1990/9ef32df8fb401e5f0482692ae974e6e0">here</a>.</p>

@@ -1,0 +1,52 @@
+<p>Vue 3 has a super neat reactivity system based on the ES6 <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy">Proxy</a> object. In this article we build a simplified version of the reactivity system. We will stay as close the <a href="https://github.com/vuejs/vue-next/tree/master/packages/reactivity">Vue 3 source code</a> as possible. The idea is to prepare you better to read and understand it.</p>
+<p>The source code repository is for this article is exclusive to my <a href="https://github.com/sponsors/lmiller1990">GitHub Sponsors</a>.</p>
+<p>By the end of this article, you&#39;ll be in a position to read through Vue&#39;s <code>reactivity</code> package and have a general understand of what&#39;s going on under the hood.</p>
+<p>As we work through our implementation, we will compare what we have written to the actual source code and see what&#39;s different, and why.</p>
+<p>The initial goal will be the following:</p>
+<pre><code class="language-ts">test(&#x27;ref&#x27;, () =&gt; {
+  const fooref = ref(&#x27;foo&#x27;)
+  let foo
+  effect(() =&gt; {
+    foo = fooref.value
+  })
+  foo //=&gt; &#x27;foo&#x27;
+  expect(<span class="hljs-name">foo</span>).toBe(&#x27;foo&#x27;)
+  fooref.value = &#x27;bar&#x27;
+  expect(<span class="hljs-name">foo</span>).toBe(&#x27;bar&#x27;) // foo is now &#x27;bar&#x27; via reactivity!
+})
+</code></pre>
+<p>The implementation will scale to something a (little) more interesting, too:</p>
+<pre><code class="language-ts">test(&#x27;multiple refs&#x27;, () =&gt; {
+  const fooref = ref(&#x27;&#x27;)
+  const barref = ref(&#x27;&#x27;)
+  let foo
+  let foobar
+
+  effect(() =&gt; {
+    foo = fooref.value
+    foobar = fooref.value + barref.value
+  })
+
+  expect(<span class="hljs-name">foo</span>).toBe(&#x27;&#x27;)
+  expect(<span class="hljs-name">foobar</span>).toBe(&#x27;&#x27;)
+
+  fooref.value = &#x27;foo&#x27;
+  expect(<span class="hljs-name">foo</span>).toBe(&#x27;foo&#x27;)
+  expect(<span class="hljs-name">foobar</span>).toBe(&#x27;foo&#x27;)
+
+  barref.value = &#x27;bar&#x27;
+  expect(<span class="hljs-name">foo</span>).toBe(&#x27;foo&#x27;)
+  expect(<span class="hljs-name">foobar</span>).toBe(&#x27;foobar&#x27;)
+})
+</code></pre>
+<p>If you have used Vue with the Composition API, you will be familiar with <code>ref</code>. You may not have seen <code>effect</code> - that&#39;s because it&#39;s not actually exposed to the end user. What you will be familiar with is <code>watch</code>, <code>watchEffect</code> and <code>computed</code> - the idea is more or less the same. All of these, as well as Vue&#39;s reactivity APIs, are powered by <code>effect</code> under the hood. Since we are doing everything from scratch, we will need to implement <code>effect</code> before implementing the rest.</p>
+<p>Wrapping something in <code>effect</code> sets up reactivity. Take this snippet:</p>
+<pre><code class="language-ts">const fooref = ref(<span class="hljs-string">&#x27;foo&#x27;</span>)
+let foo
+<span class="hljs-function"><span class="hljs-title">effect</span><span class="hljs-params">(()</span></span> =&gt; {
+  foo = fooref<span class="hljs-selector-class">.value</span>
+})
+fooref<span class="hljs-selector-class">.value</span> = <span class="hljs-string">&#x27;bar&#x27;</span>
+console<span class="hljs-selector-class">.log</span>(foo) <span class="hljs-comment">// now it&#x27;s &#x27;bar&#x27; via reactivity!</span>
+</code></pre>
+<p>By wrapping <code>foo = fooref.value</code> in <code>effect</code>, we are saying that the value of <code>foo</code> depends on the value of <code>fooref.value</code>. Now, any time that <code>fooref.value</code> changes, the <code>effect</code> will be executed and <code>foo</code> will also be updated.</p>

@@ -1,0 +1,66 @@
+Vue 3 has a super neat reactivity system based on the ES6 [Proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) object. In this article we build a simplified version of the reactivity system. We will stay as close the [Vue 3 source code](https://github.com/vuejs/vue-next/tree/master/packages/reactivity) as possible. The idea is to prepare you better to read and understand it.
+
+The source code repository is for this article is exclusive to my [GitHub Sponsors](https://github.com/sponsors/lmiller1990).
+
+By the end of this article, you'll be in a position to read through Vue's `reactivity` package and have a general understand of what's going on under the hood.
+
+As we work through our implementation, we will compare what we have written to the actual source code and see what's different, and why.
+
+The initial goal will be the following:
+
+```ts
+test('ref', () => {
+  const fooref = ref('foo')
+  let foo
+  effect(() => {
+    foo = fooref.value
+  })
+  foo //=> 'foo'
+  expect(foo).toBe('foo')
+  fooref.value = 'bar'
+  expect(foo).toBe('bar') // foo is now 'bar' via reactivity!
+})
+```
+
+The implementation will scale to something a (little) more interesting, too:
+
+```ts
+test('multiple refs', () => {
+  const fooref = ref('')
+  const barref = ref('')
+  let foo
+  let foobar
+
+  effect(() => {
+    foo = fooref.value
+    foobar = fooref.value + barref.value
+  })
+
+  expect(foo).toBe('')
+  expect(foobar).toBe('')
+
+  fooref.value = 'foo'
+  expect(foo).toBe('foo')
+  expect(foobar).toBe('foo')
+
+  barref.value = 'bar'
+  expect(foo).toBe('foo')
+  expect(foobar).toBe('foobar')
+})
+```
+
+If you have used Vue with the Composition API, you will be familiar with `ref`. You may not have seen `effect` - that's because it's not actually exposed to the end user. What you will be familiar with is `watch`, `watchEffect` and `computed` - the idea is more or less the same. All of these, as well as Vue's reactivity APIs, are powered by `effect` under the hood. Since we are doing everything from scratch, we will need to implement `effect` before implementing the rest.
+
+Wrapping something in `effect` sets up reactivity. Take this snippet:
+
+```ts
+const fooref = ref('foo')
+let foo
+effect(() => {
+  foo = fooref.value
+})
+fooref.value = 'bar'
+console.log(foo) // now it's 'bar' via reactivity!
+```
+
+By wrapping `foo = fooref.value` in `effect`, we are saying that the value of `foo` depends on the value of `fooref.value`. Now, any time that `fooref.value` changes, the `effect` will be executed and `foo` will also be updated.

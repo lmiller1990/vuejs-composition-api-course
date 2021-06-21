@@ -1,0 +1,14 @@
+<p>Among many other cool features, Vue.js 3 is much more modular than Vue.js 3. The project is consists of <a href="https://github.com/vuejs/vue-next">many different packages</a>, making it even more flexible and customizable.</p>
+<p>One of the more interesting architectural changes is the decoupled renderer and runtime. This makes it much easier to build custom renderers.</p>
+<h2 id="what-is-a-custom-renderer">What is a Custom Renderer?</h2>
+<p>Vue consists of several &quot;systems&quot;. There is the reactivity system, it&#39;s custom component system, a virtual DOM, and several others. A renderer is what takes the output of the virtual DOM and <em>renders</em> it using some UI layer. <a href="https://github.com/vuejs/vue-next/tree/master/packages/runtime-dom">The DOM renderer</a> (the only one that ships with Vue) could be considered only official renderer, and as such, the reference renderer. </p>
+<p>So, a custom renderer is renderer that targets anything other than the DOM.</p>
+<p>The official DOM renderer can also be considered the best resource to learn to build a custom renderer - if you want to write one, you will become very well acquainted with it, since there are not many other resources on building a Vue 3 renderer.</p>
+<h2 id="existing-literature">Existing Literature</h2>
+<p>The main resources I used when preparing this post were:</p>
+<ul>
+<li><a href="https://github.com/ycmjason/vuminal">Vuminal</a>. A terminal renderer. It&#39;s source code is overly modular and kind of difficult to navigate, and I couldn&#39;t get it to do anything much more than the basic counter example in the README.</li>
+<li><a href="https://github.com/Planning-nl/vugel">Vugel</a>, a WebGL renderer.</li>
+<li><a href="https://github.com/vuejs/vue-next/tree/master/packages/runtime-dom">Vue 3 DOM Renderer source</a>. This was the most useful resource by far.</li>
+<li><a href="https://react-pdf.org/">React PDF</a>. This is a custom PDF renderer for React. Not Vue, but the ideas apply, and the inspiration for this project.</li>
+</ul>

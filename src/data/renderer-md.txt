@@ -1,0 +1,20 @@
+Among many other cool features, Vue.js 3 is much more modular than Vue.js 3. The project is consists of [many different packages](https://github.com/vuejs/vue-next), making it even more flexible and customizable.
+
+One of the more interesting architectural changes is the decoupled renderer and runtime. This makes it much easier to build custom renderers.
+
+## What is a Custom Renderer?
+
+Vue consists of several "systems". There is the reactivity system, it's custom component system, a virtual DOM, and several others. A renderer is what takes the output of the virtual DOM and *renders* it using some UI layer. [The DOM renderer](https://github.com/vuejs/vue-next/tree/master/packages/runtime-dom) (the only one that ships with Vue) could be considered only official renderer, and as such, the reference renderer. 
+
+So, a custom renderer is renderer that targets anything other than the DOM.
+
+The official DOM renderer can also be considered the best resource to learn to build a custom renderer - if you want to write one, you will become very well acquainted with it, since there are not many other resources on building a Vue 3 renderer.
+
+## Existing Literature
+
+The main resources I used when preparing this post were:
+
+- [Vuminal](https://github.com/ycmjason/vuminal). A terminal renderer. It's source code is overly modular and kind of difficult to navigate, and I couldn't get it to do anything much more than the basic counter example in the README.
+- [Vugel](https://github.com/Planning-nl/vugel), a WebGL renderer.
+- [Vue 3 DOM Renderer source](https://github.com/vuejs/vue-next/tree/master/packages/runtime-dom). This was the most useful resource by far.
+- [React PDF](https://react-pdf.org/). This is a custom PDF renderer for React. Not Vue, but the ideas apply, and the inspiration for this project.
