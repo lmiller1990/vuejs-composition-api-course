@@ -1,3 +1,6 @@
+Node.js v14.16.0
+Yarn 1.22.10
+
 vue --version @vue/cli 4.5.12
 yarn --version 1.22.10
 node --version v14.16.0
