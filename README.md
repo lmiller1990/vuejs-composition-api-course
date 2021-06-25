@@ -8,7 +8,7 @@ Hi! Welcome to my course on Vue.js. We learn about:
 - Various advanced patterns
 - Deploying your app to GitHub pages
 
-Check out the [demo application](https://lmiller1990.github.io/vuejs-composition-api-course/).
+Check out the [demo application](https://lmiller1990.github.io/vuejs-composition-api-course/) or [preview the first 8 lectures](https://vimeo.com/showcase/8603383).
 
 You'll build a blogging application with the following features:
 
