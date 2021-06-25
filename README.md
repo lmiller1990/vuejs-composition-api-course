@@ -8,7 +8,7 @@ Hi! Welcome to my course on Vue.js. We learn about:
 - Various advanced patterns
 - Deploying your app to GitHub pages
 
-Check out the [demo application](https://lmiller1990.github.io/vuejs-composition-api-course/) or [preview the first 8 lectures](https://vimeo.com/showcase/8603383).
+Check out the [demo application](https://lmiller1990.github.io/vuejs-composition-api-course/) or [preview the first 8 lectures](https://vimeo.com/showcase/8603383) or see the [full curriculum here](https://vuejs-course.com/composition-api).
 
 Buy it on [Gumroad](https://gumroad.com/l/vuejs-composition-api) with the discount code GITHUB to get $10 off. It's also available on [Udemy](https://www.udemy.com/course/vuejs-3-the-composition-api/?referralCode=0C911BD2BD6C57007F36), who don't support ongoing discount codes.
 
