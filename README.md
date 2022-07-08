@@ -1,6 +1,8 @@
-## Vue.js: The Composition API (v2)
+## Vue.js: The Composition API (v2 - obsolete)
 
-Hi! Welcome to my course on Vue.js. This is the second recording of the course. The latest one, v3, is [available here](https://github.com/lmiller1990/vuejs-composition-api-v3). You should take that one, it's newer and better!
+Hi! Welcome to my course on Vue.js. This is the second recording of the course. 
+
+**The latest one, v3, is [available here](https://github.com/lmiller1990/vuejs-composition-api-v3). You should take that one, it's newer and better!**
 
 _____
 
